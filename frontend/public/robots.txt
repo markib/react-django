@@ -1,0 +1,12 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow:
+
+# Block specific paths
+User-agent: *
+Disallow: /private/
+Disallow: /admin/
+
+# Block specific bots
+User-agent: BadBot
+Disallow: /
