@@ -7,7 +7,8 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
-import Home from './components/Home';
+import Home from './pages/Home';
+import Register from './pages/Register';
 
 function App() {
   return (
@@ -25,7 +26,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/" element={<Home/>} />
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/home" element={<Home />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </MainLayout>
