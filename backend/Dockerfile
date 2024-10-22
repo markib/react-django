@@ -21,5 +21,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the Django project code
 COPY . .
 
+# Expose the port the app runs on
+EXPOSE 8000
+
 # Use gunicorn for production
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000" ,"--reload"]
