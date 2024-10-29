@@ -38,6 +38,7 @@
 
 services:
   backend:
+    container_name: backend
     build: 
       context: ./backend
       dockerfile: Dockerfile
@@ -49,33 +50,39 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
-  
-  nginx:
-    image: nginx:latest
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf  # Replace with your actual Nginx config path
-      - ./backend/staticfiles:/app/staticfiles
-    ports:
-      - "80:80"
-    depends_on:
-      - backend      
+      - db 
 
   frontend:
+    container_name: frontend
     build: 
       context: ./frontend
       dockerfile: Dockerfile
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    ports:
-      - "3000:80"
+      - frontend:/app/build
+      - node_modules:/frontend/node_modules
+    # ports:
+    #   - "3000:80"
     env_file:
       - .env
     depends_on:
       - backend
 
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    volumes:
+      - static:/backend/static
+      - frontend:/var/www/frontend
+    ports:
+      - "80:8080"
+    # restart: always  
+    depends_on:
+      - backend  
+      - frontend   
+
   db:
+    container_name: db
     image: postgres:alpine
     env_file:
       - .env
@@ -90,4 +97,7 @@ services:
 
 volumes:
   postgres_data:
+  node_modules:
+  static:
+  frontend:
   

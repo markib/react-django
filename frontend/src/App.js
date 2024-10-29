@@ -7,7 +7,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
-import Home from './pages/Home';
+// import Home from './pages/Home';
 import Register from './pages/Register';
 
 function App() {
@@ -17,7 +17,11 @@ function App() {
       <Router>
         <MainLayout>
           <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="*" element={<NotFound />} />
+
             <Route
               path="/dashboard"
               element={
@@ -26,10 +30,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="*" element={<NotFound />} />
+            
           </Routes>
         </MainLayout>
       </Router>

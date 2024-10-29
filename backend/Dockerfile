@@ -14,15 +14,19 @@ RUN apt-get update && apt-get install -y \
 # Set the working directory
 WORKDIR /app
 
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
 # Copy the Django project code
-COPY . .
+COPY . /app
 
+# Install Python dependencies
+RUN python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install -r requirements.txt && \
+    chmod +x /app/entrypoint.sh
+
+CMD [ "/app/entrypoint.sh" ]    
 # Expose the port the app runs on
-EXPOSE 8000
+# EXPOSE 8000
 
 # Use gunicorn for production
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000" ,"--reload"]
+# CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000" ,"--reload"]
+

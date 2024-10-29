@@ -9,16 +9,33 @@ const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        email: '',
+        username: '',
         password: '',
     });
+
+    // Function to get the CSRF token from cookies
+    const getCsrfToken = () => {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.split('=');
+            if (name.trim() === 'csrftoken') {
+                return decodeURIComponent(value);
+            }
+        }
+        return null;
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         dispatch(loginStart());
 
         try {
-            const response = await axiosInstance.post('/auth/login/', formData);
+            const csrfToken = getCsrfToken();
+            const response = await axiosInstance.post('/auth/login/', formData, {
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                },
+            });
             dispatch(loginSuccess(response.data));
             localStorage.setItem('token', response.data.token);
             navigate('/dashboard');
@@ -26,6 +43,7 @@ const Login = () => {
             dispatch(loginFailure(error.response?.data?.message || 'Login failed'));
         }
     };
+    
 
     return (
         <Box
@@ -43,11 +61,10 @@ const Login = () => {
                 <form onSubmit={handleSubmit}>
                     <TextField
                         fullWidth
-                        label="Email"
-                        type="email"
+                        label="Username"
                         margin="normal"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        value={formData.username}
+                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     />
                     <TextField
                         fullWidth
