@@ -7,20 +7,24 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
 
+# Copy all the source code
+COPY --chown=nginx:nginx . .
+
 # Install dependencies
 RUN npm install
 
-# Copy all the source code
-COPY . .
-
 # Build the app
-RUN npm run build
+# RUN npm run build || { echo "Build failed"; exit 1; } && \
+#     echo "Build complete" && \
+#     ls -alh build/
 
+
+CMD [ "npm", "run", "build" ]
 # Production stage: Use nginx to serve the build files
 FROM nginx:alpine
 
 # Copy build files to nginx directory
-COPY --from=builder /app/build /usr/share/nginx/html
+# COPY --from=builder /app/build /usr/share/nginx/html
 
 # Expose the port Nginx will run on
 EXPOSE 80
