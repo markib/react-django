@@ -8,4 +8,5 @@ router.register(r"items", ItemViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("auth/", include("accounts.urls")),  # Include registration URLs
 ]

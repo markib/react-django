@@ -10,7 +10,9 @@ import NotFound from './pages/NotFound';
 // import Home from './pages/Home';
 import Register from './pages/Register';
 
+
 function App() {
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
