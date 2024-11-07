@@ -1,14 +1,29 @@
-import React from 'react';
+import { React, useEffect, useContext } from 'react';
+import AuthContext from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 
 
 const Dashboard = () => {
- 
+    const navigate = useNavigate();
+    const { user, authTokens } = useContext(AuthContext);
+    // console.log("Dashboard user",user);
+    useEffect(() => {
+        // console.log('User:', user);
+        // If no authTokens, redirect to login page
+        if (!authTokens) {
+            navigate('/login', { replace: true });
+        }
+    }, [user, authTokens, navigate]);
+
    
     return (
         <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold">Dashboard</h1>
-                <p className="text-gray-500">Welcome back, Admin</p>
+                <p className="text-gray-500">
+                    {user ? `Welcome back, ${user.username}` : 'Welcome back, Guest'}
+                </p>
             </div>
 
             {/* Metrics Grid */}

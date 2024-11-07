@@ -1,16 +1,16 @@
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logout } from '../store/slices/authSlice';
+import AuthContext from '../context/AuthContext';
 
 const Header = () => {
-    const dispatch = useDispatch();
+   
     const navigate = useNavigate();
-    const { isAuthenticated } = useSelector((state) => state.auth);
+    const { user, logoutUser } = useContext(AuthContext);
 
     const handleLogout = () => {
-        dispatch(logout());
-        navigate('/login');
+        logoutUser();
+        // navigate('/login');
     };
 
     return (
@@ -20,11 +20,9 @@ const Header = () => {
                     My App Name
                 </Typography>
                 <Box>
-                    {isAuthenticated ? (
+                    {user ? (
                         <>
-                            <Button color="inherit" onClick={() => navigate('/dashboard')}>
-                                Dashboard
-                            </Button>
+                          
                             <Button color="inherit" onClick={handleLogout}>
                                 Logout
                             </Button>

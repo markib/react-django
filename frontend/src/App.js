@@ -5,38 +5,39 @@ import theme from './styles/theme';
 import MainLayout from './layouts/MainLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
-// import Home from './pages/Home';
 import Register from './pages/Register';
+import  { AuthProvider } from './context/AuthContext';
+import DashboardTabs from './components/DashboardTabs';
+
 
 
 function App() {
-
+ 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <MainLayout>
-          <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="*" element={<NotFound />} />
-
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            
-          </Routes>
-        </MainLayout>
-      </Router>
-    </ThemeProvider>
+    <Router>  {/* Ensure the entire app is wrapped inside the Router */}
+      <AuthProvider>  {/* Now AuthProvider is inside Router */}
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <MainLayout>
+            <Routes>
+              <Route
+                path="/dashboard/*"
+                element={
+                  <ProtectedRoute>
+                    <DashboardTabs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/" element={<Login />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </MainLayout>
+        </ThemeProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

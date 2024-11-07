@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useContext, useEffect } from 'react';
+// import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Paper, Typography, Box, CircularProgress } from '@mui/material';
-import { loginStart, loginSuccess, loginFailure } from '../store/slices/authSlice';
-import axiosInstance from '../config/axios';
+// import { loginStart, loginSuccess, loginFailure } from '../store/slices/authSlice';
+// import axiosInstance from '../config/axios';
+import AuthContext from '../context/AuthContext'
 
 const Login = () => {
-    const dispatch = useDispatch();
+   
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -17,55 +18,56 @@ const Login = () => {
         username: '',
         password: '',
     });
-    const [loading, setLoading] = useState(false);
-
-    // Function to get the CSRF token from cookies
-    const getCsrfToken = () => {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            const [name, value] = cookie.split('=');
-            if (name.trim() === 'csrftoken') {
-                return decodeURIComponent(value);
-            }
+    const { loginUser, loading, user } = useContext(AuthContext); // Access loginUser and getCsrfToken from AuthContext
+    // const [buttonLoading, setButtonLoading] = useState(false);
+    // Redirect to the dashboard if the user is already logged in
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard', { replace: true }); // Redirect to dashboard
         }
-        return null;
-    };
+    }, [user, navigate]);
+ 
+    
 
-    const handleSubmit = async (e) => {
+    const handleSubmit =  async(e) => {
         e.preventDefault();
-        dispatch(loginStart());
-            setLoading(true);
+        // console.log("Form submitted",loading);
+        // setButtonLoading(true);
+        // Capture `formData` immediately
+        const currentFormData = { ...formData };
+        // console.log("Form data right before async call:", currentFormData);
 
         try {
-            const csrfToken = getCsrfToken();
-            const response = await axiosInstance.post('/auth/login/', formData, {
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                },
-            });
-            dispatch(loginSuccess(response.data));
-            localStorage.setItem('token', response.data.access);
-            console.log("Token stored:", response.data.access);
-            navigate('/dashboard');
+            // console.log("formdata", currentFormData.password);
+        
+            const response = await loginUser(currentFormData.username, currentFormData.password); // Pass username, password, and csrfToken
+            console.log("Response from loginUser:", response);
+        
+            localStorage.getItem('authTokens');
+            // localStorage.setItem('user', response.data.username);
+            // console.log("Token stored:", response.data.access);
+            // Redirect to dashboard and prevent back navigation
+            navigate('/dashboard', { replace: true });
         } catch (error) {
-            // Capture detailed error messages from Django backend
-            const errorMessage = error.response?.data?.message || 'Login failed';
-            console.log("Error:", errorMessage);
-            // Reset errors first
-            setErrors({ username: '', password: '' });
-
-            // Check and set specific field error messages
-            if (errorMessage.includes('Username is required')) {
-                setErrors((prev) => ({ ...prev, username: 'Username is required' }));
-            } else if (errorMessage.includes('Password is required')) {
-                setErrors((prev) => ({ ...prev, password: 'Password is required' }));
-            } else if (errorMessage.includes('Username is incorrect.')) {
-                setErrors((prev) => ({ ...prev, username: 'Username is incorrect.' }));
-            } else if (errorMessage.includes('Password is incorrect.')) {
-                setErrors((prev) => ({ ...prev, password: 'Password is incorrect.' }));
+            // console.log("Error in handleSubmit:", error);
+           
+            if (error.message.includes('Username is required')) {
+                setErrors({ username: 'Username is required' });
+            } else if (error.message.includes('Password is required')) {
+                setErrors({ password: 'Password is required' });
+            } else if (error.message.includes('Username is incorrect')) {
+                setErrors({ username: 'Username is incorrect' });
+            } else if (error.message.includes('Password is incorrect')) {
+                setErrors({ password: 'Password is incorrect' });
+            } else {
+                setErrors({ general: 'Login failed. Please try again later.' });
             }
-            dispatch(loginFailure(error.response?.data?.message || 'Login failed'));
-        }
+
+        
+        } 
+        // finally {
+        //     setButtonLoading(false);
+        // }
     };
     
 
@@ -86,6 +88,7 @@ const Login = () => {
                     <TextField
                         fullWidth
                         label="Username"
+                        name="username"
                         margin="normal"
                         value={formData.username}
                         onChange={(e) => {
@@ -98,6 +101,7 @@ const Login = () => {
                     <TextField
                         fullWidth
                         label="Password"
+                        name="password"
                         type="password"
                         margin="normal"
                         value={formData.password}
