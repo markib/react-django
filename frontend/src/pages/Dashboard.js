@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const Dashboard = () => {
     const navigate = useNavigate();
     const { user, authTokens } = useContext(AuthContext);
-    // console.log("Dashboard user",user);
+    // console.log("Dashboard user", user);
     useEffect(() => {
         // console.log('User:', user);
         // If no authTokens, redirect to login page
