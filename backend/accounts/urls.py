@@ -6,14 +6,15 @@ from .views import (
     LoginView,
     LogoutView,
     UserProfileView,
+    CustomTokenObtainPairView,
     CustomTokenRefreshView,
 )
 
 urlpatterns = [
     path(
-        "token/obtain/", CustomTokenRefreshView.as_view(), name="token_create"
+        "token/obtain/", CustomTokenObtainPairView.as_view(), name="token_create"
     ),  # override sjwt stock token
-    path("token/refresh/", jwt_views.TokenRefreshView.as_view(), name="token_refresh"),
+    path("token/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
     path("register/", RegisterView.as_view(), name="register"),
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),

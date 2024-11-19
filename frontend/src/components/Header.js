@@ -1,12 +1,13 @@
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { useContext } from 'react';
+// import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '../context/AuthContext';
+// import AuthContext from '../context/AuthContext';
+import useAuth from '../hooks/useAuth';
 
 const Header = () => {
    
     const navigate = useNavigate();
-    const { user, logoutUser } = useContext(AuthContext);
+    const { user ,logoutUser} = useAuth
 
     const handleLogout = () => {
         logoutUser();
@@ -20,23 +21,7 @@ const Header = () => {
                     My App Name
                 </Typography>
                 <Box>
-                    {user ? (
-                        <>
-                          
-                            <Button color="inherit" onClick={handleLogout}>
-                                Logout
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button color="inherit" onClick={() => navigate('/login')}>
-                                Login
-                            </Button>
-                            <Button color="inherit" onClick={() => navigate('/register')}>
-                                Register
-                            </Button>
-                        </>
-                    )}
+                   
                 </Box>
             </Toolbar>
         </AppBar>

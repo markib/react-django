@@ -6,15 +6,16 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const { user, authTokens } = useContext(AuthContext);
+    const { user, accessToken } = useContext(AuthContext);
     // console.log("Dashboard user", user);
     useEffect(() => {
         // console.log('User:', user);
+        // console.log('accessToken:', accessToken);
         // If no authTokens, redirect to login page
-        if (!authTokens) {
+        if (!accessToken) {
             navigate('/login', { replace: true });
         }
-    }, [user, authTokens, navigate]);
+    }, [navigate]);
 
    
     return (

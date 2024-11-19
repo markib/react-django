@@ -1,74 +1,63 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState } from 'react';
 // import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { TextField, Button, Paper, Typography, Box, CircularProgress } from '@mui/material';
-// import { loginStart, loginSuccess, loginFailure } from '../store/slices/authSlice';
-// import axiosInstance from '../config/axios';
-import AuthContext from '../context/AuthContext'
+import useAuth from '../hooks/useAuth';
+import { axiosInstance } from '../axios';
+
 
 const Login = () => {
    
-    const navigate = useNavigate();
+    const { user, setUser } = useAuth()
+    const navigate = useNavigate()
+    const location = useLocation()
+    const fromLocation = location?.state?.from?.pathname || '/'
+    const [loading, setLoading] = useState(false)
+    const [username, setUsername] = useState()
+    const [password, setPassword] = useState()
+    const [errors, setError] = useState()
 
-    const [formData, setFormData] = useState({
-        username: '',
-        password: '',
-    });
-    const [errors, setErrors] = useState({
-        username: '',
-        password: '',
-    });
-    const { loginUser, loading, user } = useContext(AuthContext); // Access loginUser and getCsrfToken from AuthContext
-    // const [buttonLoading, setButtonLoading] = useState(false);
-    // Redirect to the dashboard if the user is already logged in
-    useEffect(() => {
-        if (user) {
-            navigate('/dashboard', { replace: true }); // Redirect to dashboard
-        }
-    }, [user, navigate]);
- 
-    
+    function onUserNameChange(event) {
+        setUsername(event.target.value)
+    }
 
-    const handleSubmit =  async(e) => {
-        e.preventDefault();
-        // console.log("Form submitted",loading);
-        // setButtonLoading(true);
-        // Capture `formData` immediately
-        const currentFormData = { ...formData };
-        // console.log("Form data right before async call:", currentFormData);
+    function onPasswordChange(event) {
+        setPassword(event.target.value)
+    }
+
+    async function onSubmitForm(event) {
+        event.preventDefault()
+
+        setLoading(true)
 
         try {
-            // console.log("formdata", currentFormData.password);
-        
-            const response = await loginUser(currentFormData.username, currentFormData.password); // Pass username, password, and csrfToken
-            console.log("Response from loginUser:", response);
-        
-            localStorage.getItem('authTokens');
-            // localStorage.setItem('user', response.data.username);
-            // console.log("Token stored:", response.data.access);
-            // Redirect to dashboard and prevent back navigation
-            navigate('/dashboard', { replace: true });
-        } catch (error) {
-            // console.log("Error in handleSubmit:", error);
-           
-            if (error.message.includes('Username is required')) {
-                setErrors({ username: 'Username is required' });
-            } else if (error.message.includes('Password is required')) {
-                setErrors({ password: 'Password is required' });
-            } else if (error.message.includes('Username is incorrect')) {
-                setErrors({ username: 'Username is incorrect' });
-            } else if (error.message.includes('Password is incorrect')) {
-                setErrors({ password: 'Password is incorrect' });
-            } else {
-                setErrors({ general: 'Login failed. Please try again later.' });
-            }
+            const response = await axiosInstance.post('/auth/login/', JSON.stringify({
+                username,
+                password
+            }, {
 
-        
-        } 
-        // finally {
-        //     setButtonLoading(false);
-        // }
-    };
+                withCredentials: true // Send cookies with request
+
+            }))
+
+            // setAccessToken(response?.data?.access_token)
+            // setCSRFToken(response.headers["x-csrftoken"])
+            setUsername()
+            setPassword()
+            setUser({ username: response?.data?.username, isAuthenticated: true })
+            // setLoading(false)
+
+            navigate(fromLocation, { replace: true })
+        } catch (error) {
+            // setLoading(false)
+            console.log(error)
+            setError(error)
+            // TODO: handle errors
+        }
+        finally {
+            setLoading(false);
+        }
+    }
     
 
     return (
@@ -84,19 +73,16 @@ const Login = () => {
                 <Typography variant="h5" component="h1" gutterBottom>
                     Login
                 </Typography>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={onSubmitForm}>
                     <TextField
                         fullWidth
                         label="Username"
                         name="username"
                         margin="normal"
-                        value={formData.username}
-                        onChange={(e) => {
-                            setFormData({ ...formData, username: e.target.value });
-                            setErrors((prev) => ({ ...prev, username: '' })); // Clear error on change
-                        }}
-                        error={!!errors.username}  // Show error style if there's an error
-                        helperText={errors.username}  // Display error message below the field
+        
+                        onChange={onUserNameChange}
+                        // error={!!errors.username}  // Show error style if there's an error
+                        // helperText={errors.username}  // Display error message below the field
                     />
                     <TextField
                         fullWidth
@@ -104,14 +90,16 @@ const Login = () => {
                         name="password"
                         type="password"
                         margin="normal"
-                        value={formData.password}
-                        onChange={(e) => {
-                            setFormData({ ...formData, password: e.target.value });
-                            setErrors((prev) => ({ ...prev, password: '' })); // Clear error on change
-                        }}
-                        error={!!errors.password}  // Show error style if there's an error
-                        helperText={errors.password}  // Display error message below the field
+                      
+                        onChange={onPasswordChange}
+                        // error={!!errors.password}  // Show error style if there's an error
+                        // helperText={errors.password}  // Display error message below the field
                     />
+                    {/* {errors.general && (
+                        <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+                            {errors.general}
+                        </Typography>
+                    )} */}
                     <Button
                         type="submit"
                         fullWidth
